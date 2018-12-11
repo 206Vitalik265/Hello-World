@@ -1,0 +1,215 @@
+#include <stdio.h>  
+#include <stdlib.h> 
+//#include <cstring>
+#include <string.h>
+
+//Це основна структура з якої ми створюєм чергу
+struct Node
+{
+	char data [20];
+	int prioritet;
+	struct	Node * Next;
+};
+
+
+//Це структура яка керує чергою
+struct  Lists
+{
+	struct	Node *head;
+	struct	Node *tail;
+	int count;
+	int length;
+};
+
+
+/*Це метод який ініціалізує змінні*/
+void Constuctor(struct Lists* sr, int len)
+{
+	sr->head = NULL;
+	sr->tail = NULL;
+	sr->count = 0;
+	sr->length = len;
+}
+
+
+//Це метод який викликається в кінці програми і він видаляє всі динамічно створені об'єкти
+void Lists2(struct Lists* sr)
+{
+	while (sr->head != NULL) {
+		struct	Node *temp = sr->head;
+		sr->head = sr->head->Next;
+		free(temp);
+	}
+	free(sr);
+}
+
+
+//Це метод який додає нові об'єкт основної структури в чергу
+void Add(struct Lists* sr, char * dat, int prior)
+{
+	//в цьому if міняється за пріорітетами перший елемент черги якщо sr->length==1 
+	if (sr->length == 1)
+	{
+		struct	Node *temp = (struct Node*)malloc(sizeof(struct Node));
+		int i = 0;
+		strcpy(temp->data, dat);
+		temp->prioritet = prior;
+		temp->Next = NULL;
+		if ((sr->head != NULL) && (sr->head->prioritet > temp->prioritet))
+		{
+			sr->head->Next = NULL;
+			sr->head = sr->tail = temp;
+			sr->tail->Next = NULL;
+		}
+		else {
+			if (sr->count == 0)
+				sr->head = sr->tail = temp;
+		}
+		sr->count = 1;
+	}
+	else {
+		//в цьому блоці (if ,else) контролюється пріорітет елемента
+		//яки ми хочемо записати з найнищим у черзі коли черга повна
+		if ((sr->count == sr->length) && (sr->tail->prioritet < prior))
+		{
+		}
+		else {
+			int rahun = 0;
+			//В цьому (if) перевіряєтся чи кількість елементів в черзі є рівною
+			//з довжиною черги яку ми задали. Якщо так то останній елемент черги з найнищим 
+			//пріорітетом видаляється
+			if (sr->count == sr->length) {
+				struct	Node *temp5 = sr->head;
+				while (rahun != sr->length - 2) {
+					temp5 = temp5->Next;
+					rahun++;
+				}
+				sr->tail = temp5;
+				//стирання останнього елемента черги щоб не засмічувалас динамічна пам'ять
+				free(sr->tail->Next);
+				sr->tail->Next = NULL;
+				sr->count--;
+			}
+			struct	Node *temp = (struct Node*)malloc(sizeof(struct Node));
+			int t = 0;
+			strcpy(temp->data, dat);
+			temp->prioritet = prior;
+			temp->Next = NULL;
+				struct	Node *temp1 = sr->head;
+				struct	Node *temp2;
+				if (sr->count >= 1)
+					 temp2 = temp1->Next;
+				else
+					temp2 = NULL;
+				//цей (do while) відповідає за проходження черги
+				do
+				{
+					//Цей (if) відповідає за присвоєння першого елементу
+					if (temp1 == NULL&&temp2 == NULL)
+					{
+						sr->head = sr->tail = temp;
+						break;
+					}
+					//Цей (if) відповідає за присвоєння другого елементу якшо його пріорітет більший
+					if ((sr->head->prioritet < temp->prioritet)&&temp2==NULL) {
+									sr->tail->Next = temp;
+									sr->tail = temp;
+									break;
+					}
+					//Цей (if) відповідає за заміну першого об'єкту 
+					//в черзі коли в черзі більше чим два об'єкта
+					if ((temp1!=NULL)&&(temp1->prioritet >= temp->prioritet))
+					{
+						temp->Next = temp1;
+						sr->head->Next = temp;
+						sr->head = temp;
+						temp1->Next = temp2;
+						break;
+					}
+					//В цьому (if) ми вставляєм об'єкт черги між двома
+					//іншими якщо виконуєтся умова
+					if ((temp1 != NULL) && (temp1->prioritet < prior && temp2->prioritet >= prior)) {
+						temp1->Next = temp;
+						temp1 = temp;
+						temp->Next = temp2;
+						temp = temp2;
+						break;
+					}
+					//В цьому (if) ми вставляєм об'єкт в кінець коли
+					//в черзі більше чим два об'єкта
+					if ((temp1 != NULL) && (temp2->Next == NULL))
+					{
+						sr->tail->Next = temp;
+						sr->tail = temp;
+						break;
+					}
+					temp1 = temp1->Next;
+					temp2 = temp2->Next;
+				} while (temp1 != NULL || temp2 != NULL);
+			sr->count++;
+		}
+	}
+}
+
+
+//Цей метод виводить всі елементи на екран
+void Print(struct Lists* sr)
+{
+	struct Node *temp = sr->head;
+	while (temp != NULL)
+	{
+		printf("%d\t%s\n", temp->prioritet, temp->data);
+		temp = temp->Next;
+	}
+	printf("\n");
+}
+
+
+void main() {
+	struct	Lists *str = (struct Lists*)malloc(sizeof(struct Lists));
+	//передаєтьс довжина черги і робиться конструктор 
+	//керуючої структури
+
+	int dovcher = 5;
+
+	Constuctor(str, dovcher);
+	//блок для додавання повідомлення і преорітету
+	char *messeg = "Two";
+	int prioritet = 2;
+	Add(str, messeg, prioritet);
+	//блок для додавання повідомлення і преорітету	
+	char messeg1[20] = "Five";
+	int prioritet1 = 5;
+	Add(str, messeg1, prioritet1);
+	//блок для додавання повідомлення і преорітету
+	char messeg2[20] = "Two";
+	int prioritet2 = 2;
+	Add(str, messeg2, prioritet2);
+	//блок для додавання повідомлення і преорітету
+	char messeg3[20] = "Zero";
+	int prioritet3 = 0;
+	Add(str, messeg3, prioritet3);
+	//блок для додавання повідомлення і преорітету
+	char messeg4[20] = "Zero";
+	int prioritet4 = 0;
+	Add(str, messeg4, prioritet4);
+	//блок для додавання повідомлення і преорітету
+	char messeg5[20] = "One";
+	int prioritet5 = 1;
+	Add(str, messeg5, prioritet5);
+	//блок для додавання повідомлення і преорітету
+	char messeg6[20] = "One";
+	int prioritet6 = 1;
+	Add(str, messeg6, prioritet6);
+	//блок для додавання повідомлення і преорітету
+	char messeg7[20] = "Ten";
+	int prioritet7 = 10;
+	Add(str, messeg7, prioritet7);
+	//Виводим на екран елементи черги
+	Print(str);
+	//виводим на екран кількість елементів
+	printf("element count   =");
+	printf("%d", str->count);
+	//Видаляєм всі динамічно створені об'єкти
+	Lists2(str);
+}
